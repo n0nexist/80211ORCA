@@ -54,7 +54,7 @@ def intercept_handshakes(interf):
 addrs = list(psutil.net_if_addrs())
 interface = Prompt.ask("Select an [bold][cyan]interface[/cyan][/bold]",choices=addrs,default=addrs[-1])
 
-channel = Prompt.ask("Select a [bold][cyan]channel[/cyan][/bold]",choices=range(1,14),default="6")
+channel = Prompt.ask("Select a [bold][cyan]channel[/cyan][/bold]",choices=[str(i) for i in range(1, 14)],default="6")
 channel = int(channel)
 
 os.popen(f"iwconfig {interface} channel {channel}").read()
