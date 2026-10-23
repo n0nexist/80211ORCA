@@ -18,10 +18,12 @@ print("""\033[35m
 
 import os
 import psutil
+from rich import print
 from rich.prompt import Prompt
 from threading import Thread
 from time import sleep
 from datetime import datetime
+from scapy.all import *
 
 if os.getuid() != 0:
     print("\033[31m[-] NEED ROOT.\033[0m")
