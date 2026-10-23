@@ -51,17 +51,12 @@ def handshake_sniffer(pkt):
 def intercept_handshakes(interf):
     sniff(stop_filter=handshake_sniffer, iface=interf, monitor=True)
 
-"""
-def channel_switcher(interface):
-    while True:
-        for channel in range(1,14):
-            os.popen(f"iwconfig {interface} channel {channel}").read()
-            print(f"[bright_cyan]Channel[/bright_cyan]: [gray]{channel}[/gray]",end="\r")
-            sleep(0.2)"""
-
 addrs = list(psutil.net_if_addrs())
 interface = Prompt.ask("Select an [bold][cyan]interface[/cyan][/bold]",choices=addrs,default=addrs[-1])
 
-os.popen(f"iwconfig {interface} channel 6").read()
+channel = Prompt.ask("Select a [bold][cyan]channel[/cyan][/bold]",choices=range(1,14),default="6")
+channel = int(channel)
+
+os.popen(f"iwconfig {interface} channel {channel}").read()
+
 Thread(target=intercept_handshakes, args=(interface,)).start()
-#Thread(target=channel_switcher, args=(interface,)).start()
