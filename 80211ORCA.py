@@ -33,20 +33,20 @@ def getPCAPfilename():
     d = datetime.now()
     return f"{d.day}_{d.month}_{d.year}__{d.hour}-{d.minute}.pcap"
 
+def getTimestamp():
+    d = datetime.now()
+    return f"[{d.hour}:{d.minute}:{d.second}]"
+
 PCAP = getPCAPfilename()
 
 def handshake_sniffer(pkt):
-    global handshake_fragments
-
     pktdmp = PcapWriter(PCAP,append=True,sync=True)
     pktdmp.write(pkt)
 
-    if EAPOL in pkt:
-        handshake_fragments += 1
-        print(f"[bright_black]+[/bright_black] Captured [green][underline]{handshake_fragments}[/underline][/green] EAPOL packets")
+    print(f"[bright_black]{getTimestamp()} Wifi card is reading something...[/bright_black]")
 
-    if handshake_fragments >= 10:
-        return True
+    if EAPOL in pkt:
+        print(f"[bright_black]+[/bright_black] Captured an [green]EAPOL[/green] packet.")
 
 def intercept_handshakes(interf):
     sniff(stop_filter=handshake_sniffer, iface=interf, monitor=True)
@@ -64,4 +64,4 @@ interface = Prompt.ask("Select an [bold][cyan]interface[/cyan][/bold]",choices=a
 
 os.popen(f"iwconfig {interface} channel 6").read()
 Thread(target=intercept_handshakes, args=(interface,)).start()
-Thread(target=channel_switcher, args=(interface,)).start()
+#Thread(target=channel_switcher, args=(interface,)).start()
