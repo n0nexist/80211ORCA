@@ -70,7 +70,7 @@ def alreadySeen(s):
 def handshake_sniffer(pkt):
     if EAPOL in pkt:
         PCAPWRITER.write(pkt)
-        print(f"[bright_black]+[/bright_black] Captured an [green]EAPOL[/green] packet.")
+        print(f"[bright_black]+[/bright_black] Captured an [green]EAPOL[/green] packet.                                        ")
 
 def intercept_handshakes():
     global INTERFACE
