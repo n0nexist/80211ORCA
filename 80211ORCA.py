@@ -69,6 +69,30 @@ def alreadySeen(s):
         return False
 
 """ PASSIVE HANDSHAKE SNIFFING """
+def get_eapol_message_number(pkt):
+    if EAPOL not in pkt:
+        return None
+    eapol = pkt[EAPOL]
+    if eapol.type != 3:
+        return None
+    if not eapol.haslayer(EAPOLKey):
+        return None
+    key = eapol[EAPOLKey]
+    ack = key.key_ack
+    mic = key.key_mic
+    install = key.install
+    secure = key.secure
+
+    if ack == 1 and mic == 0:
+        return "1"
+    if ack == 0 and mic == 1:
+        return "2"
+    if ack == 1 and mic == 1 and install == 1:
+        return "[green]3[/green]"
+    if ack == 1 and mic == 1 and secure == 1:
+        return "4"
+    return None
+
 def is_deauth(pkt):
     if pkt.haslayer(Dot11):
         return pkt[Dot11].type == 0 and pkt[Dot11].subtype == 12
@@ -81,7 +105,9 @@ def handshake_sniffer(pkt):
     PCAPWRITER.write(pkt)
     if EAPOL in pkt:
         HANDSHAKE_FRAG_COUNTER += 1
-        print(f"[bright_black]+{HANDSHAKE_FRAG_COUNTER}[/bright_black] Captured [green]handshake[/green] fragment.{PRINT_SEPARATOR}")
+        msg = get_eapol_message_number(pkt)
+        msg_label = f"{msg} of 4" if msg else "unknown"
+        print(f"[bright_black]+{HANDSHAKE_FRAG_COUNTER}[/bright_black] Captured [green]handshake[/green] fragment, {msg_label}.{PRINT_SEPARATOR}")
 
 def intercept_handshakes():
     global INTERFACE
