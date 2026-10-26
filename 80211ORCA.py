@@ -76,21 +76,22 @@ def get_eapol_message_number(pkt):
     eapol = pkt[EAPOL]
     if eapol.type != 3:
         return None
-    if not eapol.haslayer(EAPOL_KEY):
+    eapol_bytes = bytes(eapol)
+    if len(eapol_bytes) < 7:
         return None
-    key = eapol[EAPOL_KEY]
-    ack = key.key_ack
-    mic = key.key_mic
-    install = key.install
-    secure = key.secure
+    key_info = (eapol_bytes[5] << 8) | eapol_bytes[6]
+    ack     = bool(key_info & 0x0080)
+    mic     = bool(key_info & 0x0100)
+    install = bool(key_info & 0x0040)
+    secure  = bool(key_info & 0x0200)
 
-    if ack == 1 and mic == 0:
+    if ack and not mic:
         return "1"
-    if ack == 0 and mic == 1:
+    if not ack and mic:
         return "2"
-    if ack == 1 and mic == 1 and install == 1:
+    if ack and mic and install:
         return "[green]3[/green]"
-    if ack == 1 and mic == 1 and secure == 1:
+    if ack and mic and secure:
         return "4"
     return None
 
