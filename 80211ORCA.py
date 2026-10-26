@@ -68,8 +68,8 @@ def alreadySeen(s):
 
 """ PASSIVE HANDSHAKE SNIFFING """
 def handshake_sniffer(pkt):
+    PCAPWRITER.write(pkt)
     if EAPOL in pkt:
-        PCAPWRITER.write(pkt)
         print(f"[bright_black]+[/bright_black] Captured an [green]EAPOL[/green] packet.                                        ")
 
 def intercept_handshakes():
