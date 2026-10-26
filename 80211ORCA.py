@@ -69,8 +69,15 @@ def alreadySeen(s):
         return False
 
 """ PASSIVE HANDSHAKE SNIFFING """
+def is_deauth(pkt):
+    if pkt.haslayer(Dot11):
+        return pkt[Dot11].type == 0 and pkt[Dot11].subtype == 12
+    return False
+
 def handshake_sniffer(pkt):
     global HANDSHAKE_FRAG_COUNTER
+    if is_deauth(pkt):
+        return
     PCAPWRITER.write(pkt)
     if EAPOL in pkt:
         HANDSHAKE_FRAG_COUNTER += 1
