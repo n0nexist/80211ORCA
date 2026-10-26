@@ -13,6 +13,7 @@ from threading import Thread, Lock
 import time
 from datetime import datetime
 from scapy.all import *
+from scapy.layers.eap import EAPOL_KEY
 
 os.system("clear")
 print("""\033[35m
@@ -75,9 +76,9 @@ def get_eapol_message_number(pkt):
     eapol = pkt[EAPOL]
     if eapol.type != 3:
         return None
-    if not eapol.haslayer(EAPOLKey):
+    if not eapol.haslayer(EAPOL_KEY):
         return None
-    key = eapol[EAPOLKey]
+    key = eapol[EAPOL_KEY]
     ack = key.key_ack
     mic = key.key_mic
     install = key.install
