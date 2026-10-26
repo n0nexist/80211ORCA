@@ -58,6 +58,7 @@ TARGETLIST = []
 TARGET_LOCK = Lock()
 INTERFACE = ""
 PCAPWRITER = PcapWriter(PCAP, append=True, sync=True)
+PRINT_SEPARATOR = " "*35
 
 def alreadySeen(s):
     with TARGET_LOCK:
@@ -70,7 +71,7 @@ def alreadySeen(s):
 def handshake_sniffer(pkt):
     PCAPWRITER.write(pkt)
     if EAPOL in pkt:
-        print(f"[bright_black]+[/bright_black] Captured an [green]EAPOL[/green] packet.                                        ")
+        print(f"[bright_black]+[/bright_black] Captured an [green]EAPOL[/green] packet.{PRINT_SEPARATOR}")
 
 def intercept_handshakes():
     global INTERFACE
