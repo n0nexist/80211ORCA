@@ -183,7 +183,32 @@ def main():
     addrs = list(psutil.net_if_addrs())
 
     INTERFACE = Prompt.ask("Select an [bold][cyan]interface[/cyan][/bold]",choices=addrs,default=addrs[-1])
-    CHANNEL = Prompt.ask("Select a [bold][cyan]channel[/cyan][/bold]",choices=[str(i) for i in range(1, 14)],default="6")
+    
+    # BAND SELECTION
+    BANDS = {
+        "2.4": [str(i) for i in range(1, 14)],           # 1..13
+        "5": [
+            "36", "40", "44", "48",           # UNII-1  (non-DFS)
+            "52", "56", "60", "64",           # UNII-2A (DFS)
+            "100", "104", "108", "112", "116", "120", "124", "128",
+            "132", "136", "140", "144",       # UNII-2C (DFS)
+            "149", "153", "157", "161", "165",# UNII-3  (non-DFS, region-dependent)
+        ],
+    }
+
+    BAND = Prompt.ask(
+        "Select a [bold][cyan]band[/cyan][/bold] (GHz)",
+        choices=list(BANDS.keys()),
+        default="2.4",
+    )
+
+    CHANNEL = Prompt.ask(
+        f"Select a [bold][cyan]{BAND} GHz channel[/cyan][/bold]",
+        choices=BANDS[BAND],
+        default="6" if BAND == "2.4" else "36",
+    )
+
+
     CHANNEL = int(CHANNEL)
     MODE = Prompt.ask("[red]Attack[/red] mode",choices=["active","passive"],default="passive")
     os.popen(f"iwconfig {INTERFACE} channel {CHANNEL}").read()
